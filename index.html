@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Mercadinho</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mercadinho">
+<meta name="theme-color" content="#1f5c3f">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: one narrow column of shelf-tag cards; a yellow "etiqueta" marks the best buy */
+:root {
+  --bg: #f3f5f0;
+  --surface: #ffffff;
+  --fg: #18261e;
+  --muted: #5d6b62;
+  --line: #d9e0d6;
+  --brand: #1f5c3f;
+  --brand-fg: #ffffff;
+  --tag: #ffd84a;
+  --tag-fg: #1b1a10;
+  --warn: #b4441f;
+  --field: #f6f8f4;
+  --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body: "Inter", -apple-system, system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1612; --surface: #18211b; --fg: #e8eee9; --muted: #9aa89f; --line: #2b3830;
+    --brand: #5fbf8c; --brand-fg: #0c1a12; --tag: #f2cb3c; --tag-fg: #1b1a10; --warn: #f08a62;
+    --field: #111a15; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1612; --surface: #18211b; --fg: #e8eee9; --muted: #9aa89f; --line: #2b3830;
+  --brand: #5fbf8c; --brand-fg: #0c1a12; --tag: #f2cb3c; --tag-fg: #1b1a10; --warn: #f08a62;
+  --field: #111a15; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--body); font-size: 16px; line-height: 1.45;
+  -webkit-text-size-adjust: 100%;
+}
+.wrap {
+  max-width: 520px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 40px;
+  display: flex; flex-direction: column; gap: 18px;
+}
+header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+h1 {
+  font-family: var(--display); font-weight: 800; font-size: 2rem; letter-spacing: -0.02em;
+  margin: 0; color: var(--brand); line-height: 1;
+}
+.sub { margin: 4px 0 0; color: var(--muted); font-size: .95rem; }
+.ghost {
+  background: none; border: 1px solid var(--line); color: var(--muted);
+  font: 500 .9rem var(--body); padding: 8px 12px; border-radius: 10px; cursor: pointer;
+}
+.ghost:active { background: var(--field); }
+
+label.lbl { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+input, select { font: 500 1.1rem var(--body); color: var(--fg); }
+.field {
+  background: var(--field); border: 1px solid var(--line); border-radius: 10px;
+  min-height: 48px; padding: 0 12px; width: 100%;
+}
+.field:focus, select:focus { outline: 2px solid var(--brand); outline-offset: 1px; }
+#produto { font-size: 1.05rem; }
+
+.list { display: flex; flex-direction: column; gap: 12px; }
+.card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  padding: 14px; display: flex; flex-direction: column; gap: 12px; position: relative;
+  transition: border-color .2s, box-shadow .2s;
+}
+.card.win { border-color: var(--tag); box-shadow: 0 0 0 2px var(--tag); }
+.card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.letter {
+  font-family: var(--display); font-weight: 800; font-size: 1.15rem;
+  width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center;
+  background: var(--field); border: 1px solid var(--line); color: var(--fg);
+}
+.card.win .letter { background: var(--tag); border-color: var(--tag); color: var(--tag-fg); }
+.badge {
+  font-size: .78rem; font-weight: 600; padding: 4px 10px; border-radius: 999px;
+  background: var(--tag); color: var(--tag-fg); white-space: nowrap;
+}
+.badge.more { background: var(--field); color: var(--muted); border: 1px solid var(--line); }
+.top-right { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.remove {
+  width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--line);
+  background: none; color: var(--muted); font-size: 1.2rem; line-height: 1; cursor: pointer;
+}
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.grid > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.size-row { display: flex; gap: 6px; }
+.size-row input { flex: 1; min-width: 0; }
+.size-row select { flex: 0 0 74px; padding: 0 6px; }
+.money { position: relative; }
+.money span { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-weight: 500; pointer-events: none; }
+.money input { padding-left: 38px; }
+.unit-price {
+  display: flex; justify-content: space-between; align-items: baseline;
+  border-top: 1px dashed var(--line); padding-top: 10px; font-variant-numeric: tabular-nums;
+}
+.unit-price .v { font-family: var(--display); font-weight: 600; font-size: 1.25rem; }
+.unit-price .k { color: var(--muted); font-size: .85rem; }
+
+.add {
+  min-height: 50px; border-radius: 12px; border: 1.5px dashed var(--line);
+  background: none; color: var(--brand); font: 600 1rem var(--body); cursor: pointer;
+}
+.add:active { background: var(--surface); }
+
+.verdict {
+  background: var(--brand); color: var(--brand-fg); border-radius: 16px; padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 4px;
+  position: sticky; bottom: max(12px, env(safe-area-inset-bottom, 0px)); z-index: 5;
+  box-shadow: 0 8px 24px rgba(0,0,0,.18);
+}
+.verdict .eyebrow { font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; opacity: .85; font-weight: 600; }
+.verdict .big { font-family: var(--display); font-weight: 800; font-size: 1.5rem; line-height: 1.15; text-wrap: balance; }
+.verdict .small { font-size: .92rem; opacity: .92; }
+.verdict.idle { background: var(--surface); color: var(--muted); border: 1px solid var(--line); box-shadow: none; }
+.verdict.idle .big { font-size: 1.1rem; color: var(--fg); }
+.verdict.err { background: var(--surface); color: var(--fg); border: 1.5px solid var(--warn); box-shadow: none; }
+.verdict.err .eyebrow { color: var(--warn); opacity: 1; }
+.verdict.err .big { font-size: 1.1rem; }
+
+.example {
+  font-size: .85rem; color: var(--muted); background: var(--surface); border: 1px solid var(--line);
+  border-radius: 10px; padding: 8px 12px;
+}
+.mode { display: flex; flex-direction: column; gap: 18px; }
+.seg {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+}
+.seg button {
+  min-height: 42px; border: 0; border-radius: 9px; background: none; cursor: pointer;
+  font: 600 .95rem var(--body); color: var(--muted);
+}
+.seg button[aria-pressed="true"] { background: var(--brand); color: var(--brand-fg); }
+.verdict.solo { position: static; }
+.verdict.solo .big { font-size: 2rem; font-variant-numeric: tabular-nums; }
+button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+<style>
+  :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  body { margin: 0; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Mercadinho</h1>
+      <p class="sub" id="sub">Qual embalagem vale mais a pena?</p>
+    </div>
+    <button class="ghost" id="limpar" type="button">Limpar</button>
+  </header>
+
+  <div class="seg" role="group" aria-label="Modo">
+    <button type="button" id="tab-comparar" aria-pressed="true">Comparar</button>
+    <button type="button" id="tab-kg" aria-pressed="false">Preço por kg/L</button>
+  </div>
+
+  <section class="mode" id="modo-kg" hidden>
+    <div class="card">
+      <div class="grid">
+        <div>
+          <label class="lbl" for="kg-size">Tamanho</label>
+          <div class="size-row">
+            <input class="field" id="kg-size" inputmode="decimal" placeholder="300" autocomplete="off">
+            <select class="field" id="kg-unit" aria-label="Unidade">
+              <option value="g">g</option><option value="kg">kg</option>
+              <option value="ml">ml</option><option value="l">L</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="lbl" for="kg-price">Preço</label>
+          <div class="money"><span>R$</span><input class="field" id="kg-price" inputmode="numeric" pattern="[0-9]*" placeholder="0,00" autocomplete="off"></div>
+        </div>
+      </div>
+    </div>
+    <div class="verdict solo idle" id="kg-result" aria-live="polite">
+      <div class="eyebrow">Preço por kg</div>
+      <div class="big">—</div>
+    </div>
+  </section>
+
+  <section class="mode" id="modo-comparar">
+  <div style="display:flex;flex-direction:column;gap:4px">
+    <label class="lbl" for="produto">Produto (opcional)</label>
+    <input class="field" id="produto" type="text" placeholder="Ex.: arroz, sabão, leite" autocomplete="off">
+  </div>
+
+  <p class="example" id="exemplo" hidden>Valores de exemplo. Toque em <b>Limpar</b> para começar.</p>
+
+  <div class="list" id="lista"></div>
+
+  <button class="add" id="add" type="button">+ Adicionar opção</button>
+
+  <div class="verdict idle" id="veredito" aria-live="polite">
+    <div class="eyebrow">Resultado</div>
+    <div class="big">Preencha tamanho e preço de pelo menos duas opções.</div>
+  </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  const UNITS = {
+    g:  { dim: "peso",   factor: 0.001, base: "kg" },
+    kg: { dim: "peso",   factor: 1,     base: "kg" },
+    ml: { dim: "volume", factor: 0.001, base: "L" },
+    l:  { dim: "volume", factor: 1,     base: "L" },
+    un: { dim: "unidade",factor: 1,     base: "un" }
+  };
+  const UNIT_LABEL = { g: "g", kg: "kg", ml: "ml", l: "L", un: "un" };
+  const KEY = "mercadinho.v1";
+  const brl = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+  const num = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 3 });
+
+  const EXAMPLE = {
+    produto: "Arroz",
+    example: true,
+    rows: [
+      { size: "1", unit: "kg", price: "6,49" },
+      { size: "5", unit: "kg", price: "27,90" },
+      { size: "2", unit: "kg", price: "11,99" }
+    ]
+  };
+  const EMPTY = () => ({ produto: "", example: false, rows: [{ size: "", unit: "kg", price: "" }, { size: "", unit: "kg", price: "" }] });
+
+  let state;
+  try { state = JSON.parse(localStorage.getItem(KEY)); } catch (e) { state = null; }
+  if (!state || !Array.isArray(state.rows) || state.rows.length < 1) state = JSON.parse(JSON.stringify(EXAMPLE));
+  if (state.mode !== "kg") state.mode = "comparar";
+  if (!state.single) state.single = { size: "300", unit: "g", price: "2,50" };
+
+  const $lista = document.getElementById("lista");
+  const $produto = document.getElementById("produto");
+  const $veredito = document.getElementById("veredito");
+  const $exemplo = document.getElementById("exemplo");
+
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+  function parseNum(s) {
+    if (s == null) return NaN;
+    s = String(s).trim().replace(/\s/g, "").replace(/^R\$/i, "");
+    if (!s) return NaN;
+    if (s.includes(",")) s = s.replace(/\./g, "").replace(",", ".");
+    const n = Number(s);
+    return Number.isFinite(n) ? n : NaN;
+  }
+
+  // Cash-register style: digits fill from the right, comma fixed before the last two.
+  // "1" → "0,01", "129" → "1,29", "1290" → "12,90", "123456" → "1.234,56"
+  function formatCents(s) {
+    const digits = String(s).replace(/\D/g, "").replace(/^0+/, "").slice(0, 9);
+    if (!digits) return "";
+    const padded = digits.padStart(3, "0");
+    const reais = padded.slice(0, -2).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    return reais + "," + padded.slice(-2);
+  }
+
+  const letter = i => String.fromCharCode(65 + i);
+
+  function build() {
+    $lista.innerHTML = "";
+    state.rows.forEach((r, i) => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <div class="card-top">
+          <div class="letter">${letter(i)}</div>
+          <div class="top-right">
+            <span class="badge" hidden></span>
+            ${state.rows.length > 2 ? `<button class="remove" type="button" aria-label="Remover opção ${letter(i)}">×</button>` : ""}
+          </div>
+        </div>
+        <div class="grid">
+          <div>
+            <label class="lbl" for="size-${i}">Tamanho</label>
+            <div class="size-row">
+              <input class="field" id="size-${i}" inputmode="decimal" placeholder="500" autocomplete="off">
+              <select class="field" id="unit-${i}" aria-label="Unidade">
+                ${Object.keys(UNITS).map(u => `<option value="${u}">${UNIT_LABEL[u]}</option>`).join("")}
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="lbl" for="price-${i}">Preço</label>
+            <div class="money"><span>R$</span><input class="field" id="price-${i}" inputmode="numeric" pattern="[0-9]*" placeholder="0,00" autocomplete="off"></div>
+          </div>
+        </div>
+        <div class="unit-price"><span class="k">—</span><span class="v"></span></div>`;
+      const size = card.querySelector(`#size-${i}`);
+      const unit = card.querySelector(`#unit-${i}`);
+      const price = card.querySelector(`#price-${i}`);
+      size.value = r.size; unit.value = r.unit; price.value = r.price;
+      const onChange = () => {
+        r.size = size.value; r.unit = unit.value; r.price = price.value;
+        if (state.example) { state.example = false; }
+        update(); save();
+      };
+      size.addEventListener("input", onChange);
+      price.addEventListener("input", () => {
+        price.value = formatCents(price.value);
+        const end = price.value.length;
+        try { price.setSelectionRange(end, end); } catch (e) {}
+        onChange();
+      });
+      unit.addEventListener("change", onChange);
+      const rm = card.querySelector(".remove");
+      if (rm) rm.addEventListener("click", () => { state.rows.splice(i, 1); build(); save(); });
+      $lista.appendChild(card);
+    });
+    update();
+  }
+
+  function update() {
+    $exemplo.hidden = !state.example;
+    const cards = [...$lista.children];
+    const items = state.rows.map((r, i) => {
+      const size = parseNum(r.size), price = parseNum(r.price), u = UNITS[r.unit];
+      const ok = size > 0 && price > 0 && u;
+      return { i, r, u, ok, per: ok ? price / (size * u.factor) : NaN, size, price };
+    });
+    const valid = items.filter(x => x.ok);
+    const dims = new Set(valid.map(x => x.u.dim));
+    const mixed = dims.size > 1;
+
+    let best = Infinity, worst = 0;
+    if (!mixed) valid.forEach(x => { best = Math.min(best, x.per); worst = Math.max(worst, x.per); });
+    const EPS = 1e-9;
+    const winners = (!mixed && valid.length >= 2) ? valid.filter(x => Math.abs(x.per - best) < EPS) : [];
+
+    items.forEach(x => {
+      const card = cards[x.i]; if (!card) return;
+      const k = card.querySelector(".unit-price .k");
+      const v = card.querySelector(".unit-price .v");
+      const badge = card.querySelector(".badge");
+      card.classList.remove("win");
+      badge.hidden = true; badge.className = "badge";
+      if (!x.ok) { k.textContent = "—"; v.textContent = ""; return; }
+      k.textContent = "por " + x.u.base;
+      v.textContent = brl.format(x.per);
+      if (mixed || valid.length < 2) return;
+      if (winners.includes(x)) {
+        card.classList.add("win");
+        badge.hidden = false;
+        badge.textContent = winners.length > 1 ? "Empate" : "Melhor compra";
+      } else {
+        const pct = (x.per / best - 1) * 100;
+        badge.hidden = false; badge.classList.add("more");
+        badge.textContent = `+${pct < 1 ? pct.toFixed(1).replace(".", ",") : Math.round(pct)}% caro`;
+      }
+    });
+
+    const prod = state.produto.trim();
+    if (mixed) {
+      setVerdict("err", "Unidades diferentes",
+        "Não dá para comparar peso, volume e unidades entre si.",
+        "Use g/kg para todas, ou ml/L, ou un.");
+    } else if (valid.length < 2) {
+      setVerdict("idle", "Resultado", "Preencha tamanho e preço de pelo menos duas opções.", "");
+    } else if (winners.length > 1) {
+      setVerdict("", "Resultado", `Empate entre ${winners.map(w => letter(w.i)).join(" e ")}`,
+        `Todas saem a ${brl.format(best)} por ${winners[0].u.base}. Leve a que você vai usar.`);
+    } else {
+      const w = winners[0];
+      const saving = (1 - best / worst) * 100;
+      const sizeTxt = `${num.format(w.size)} ${UNIT_LABEL[w.r.unit]}`;
+      setVerdict("", prod ? `Melhor compra · ${prod}` : "Melhor compra",
+        `Leve a ${letter(w.i)}: ${sizeTxt} por ${brl.format(w.price)}`,
+        `${brl.format(best)} por ${w.u.base}, ${Math.round(saving)}% mais barato que a opção mais cara.`);
+    }
+  }
+
+  function setVerdict(cls, eyebrow, big, small) {
+    $veredito.className = "verdict " + cls;
+    $veredito.innerHTML = "";
+    const e = document.createElement("div"); e.className = "eyebrow"; e.textContent = eyebrow;
+    const b = document.createElement("div"); b.className = "big"; b.textContent = big;
+    $veredito.append(e, b);
+    if (small) { const s = document.createElement("div"); s.className = "small"; s.textContent = small; $veredito.append(s); }
+  }
+
+  $produto.value = state.produto || "";
+  $produto.addEventListener("input", () => { state.produto = $produto.value; state.example = false; update(); save(); });
+
+  document.getElementById("add").addEventListener("click", () => {
+    if (state.rows.length >= 8) return;
+    const lastUnit = state.rows.length ? state.rows[state.rows.length - 1].unit : "kg";
+    state.rows.push({ size: "", unit: lastUnit, price: "" });
+    state.example = false;
+    build(); save();
+    const el = document.getElementById(`size-${state.rows.length - 1}`);
+    if (el) el.focus();
+  });
+
+  // ---- Modo "Preço por kg/L" ----
+  const $kgSize = document.getElementById("kg-size");
+  const $kgUnit = document.getElementById("kg-unit");
+  const $kgPrice = document.getElementById("kg-price");
+  const $kgResult = document.getElementById("kg-result");
+
+  function updateSingle() {
+    const s = state.single;
+    const size = parseNum(s.size), price = parseNum(s.price), u = UNITS[s.unit];
+    const base = u ? u.base : "kg";
+    const small = base === "L" ? "100 ml" : "100 g";
+    $kgResult.innerHTML = "";
+    const e = document.createElement("div"); e.className = "eyebrow"; e.textContent = "Preço por " + base;
+    const b = document.createElement("div"); b.className = "big";
+    $kgResult.append(e, b);
+    if (!(size > 0 && price > 0 && u)) {
+      $kgResult.className = "verdict solo idle";
+      b.textContent = "—";
+      const t = document.createElement("div"); t.className = "small";
+      t.textContent = "Digite o tamanho e o preço da embalagem.";
+      $kgResult.append(t);
+      return;
+    }
+    const per = price / (size * u.factor);
+    $kgResult.className = "verdict solo";
+    b.textContent = `${brl.format(per)} por ${base}`;
+    const t = document.createElement("div"); t.className = "small";
+    t.textContent = `${num.format(size)} ${UNIT_LABEL[s.unit]} por ${brl.format(price)} · ${brl.format(per / 10)} a cada ${small}`;
+    $kgResult.append(t);
+  }
+
+  $kgSize.value = state.single.size;
+  $kgUnit.value = state.single.unit;
+  $kgPrice.value = state.single.price;
+  const onSingle = () => {
+    state.single = { size: $kgSize.value, unit: $kgUnit.value, price: $kgPrice.value };
+    updateSingle(); save();
+  };
+  $kgSize.addEventListener("input", onSingle);
+  $kgUnit.addEventListener("change", onSingle);
+  $kgPrice.addEventListener("input", () => {
+    $kgPrice.value = formatCents($kgPrice.value);
+    const end = $kgPrice.value.length;
+    try { $kgPrice.setSelectionRange(end, end); } catch (e) {}
+    onSingle();
+  });
+
+  // ---- Troca de modo ----
+  const $tabC = document.getElementById("tab-comparar");
+  const $tabK = document.getElementById("tab-kg");
+  function showMode() {
+    const kg = state.mode === "kg";
+    document.getElementById("modo-kg").hidden = !kg;
+    document.getElementById("modo-comparar").hidden = kg;
+    $tabC.setAttribute("aria-pressed", String(!kg));
+    $tabK.setAttribute("aria-pressed", String(kg));
+    document.getElementById("sub").textContent = kg ? "Quanto sai o quilo ou o litro?" : "Qual embalagem vale mais a pena?";
+  }
+  $tabC.addEventListener("click", () => { state.mode = "comparar"; showMode(); save(); });
+  $tabK.addEventListener("click", () => { state.mode = "kg"; showMode(); save(); });
+
+  document.getElementById("limpar").addEventListener("click", () => {
+    if (state.mode === "kg") {
+      state.single = { size: "", unit: $kgUnit.value, price: "" };
+      $kgSize.value = ""; $kgPrice.value = "";
+      updateSingle(); save();
+      return;
+    }
+    const keep = { mode: state.mode, single: state.single };
+    state = Object.assign(EMPTY(), keep);
+    $produto.value = "";
+    build(); save();
+  });
+
+  showMode();
+  updateSingle();
+  build();
+})();
+</script>
+
+</body>
+</html>
