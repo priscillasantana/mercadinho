@@ -10,38 +10,42 @@
 <title>Mercadinho</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Mercadinho">
-<meta name="theme-color" content="#1f5c3f">
+<meta name="theme-color" content="#c62a1f">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat+Brush&display=swap">
 <style>
-/* Layout: one narrow column of shelf-tag cards; a yellow "etiqueta" marks the best buy */
+/* Layout: one narrow column; prices and the answer are hand-lettered like a shop-window cartaz
+   (red marker on fluorescent yellow poster paper) */
 :root {
-  --bg: #f3f5f0;
+  --bg: #f6f5f2;
   --surface: #ffffff;
-  --fg: #18261e;
-  --muted: #5d6b62;
-  --line: #d9e0d6;
-  --brand: #1f5c3f;
+  --fg: #1c1a18;
+  --muted: #6a645e;
+  --line: #e0dcd6;
+  --brand: #c62a1f;          /* marker red */
   --brand-fg: #ffffff;
-  --tag: #ffd84a;
-  --tag-fg: #1b1a10;
+  --tag: #ffe33d;            /* poster yellow */
+  --tag-fg: #1c1a18;
+  --poster: #ffe33d;
+  --poster-ink: #c62a1f;
+  --poster-fg: #1c1a18;
   --warn: #b4441f;
-  --field: #f6f8f4;
-  --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
-  --body: "Inter", -apple-system, system-ui, sans-serif;
+  --field: #f7f6f3;
+  --display: "Caveat Brush", "Marker Felt", "Chalkboard SE", cursive;
+  --body: -apple-system, BlinkMacSystemFont, "Helvetica Neue", system-ui, sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0f1612; --surface: #18211b; --fg: #e8eee9; --muted: #9aa89f; --line: #2b3830;
-    --brand: #5fbf8c; --brand-fg: #0c1a12; --tag: #f2cb3c; --tag-fg: #1b1a10; --warn: #f08a62;
-    --field: #111a15; color-scheme: dark;
+    --bg: #141210; --surface: #1e1b18; --fg: #f2eee8; --muted: #a69f97; --line: #35302b;
+    --brand: #ff6b5e; --brand-fg: #1c0d0b; --tag: #f5d625; --tag-fg: #1c1a18; --warn: #f08a62;
+    --field: #181513; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0f1612; --surface: #18211b; --fg: #e8eee9; --muted: #9aa89f; --line: #2b3830;
-  --brand: #5fbf8c; --brand-fg: #0c1a12; --tag: #f2cb3c; --tag-fg: #1b1a10; --warn: #f08a62;
-  --field: #111a15; color-scheme: dark;
+  --bg: #141210; --surface: #1e1b18; --fg: #f2eee8; --muted: #a69f97; --line: #35302b;
+  --brand: #ff6b5e; --brand-fg: #1c0d0b; --tag: #f5d625; --tag-fg: #1c1a18; --warn: #f08a62;
+  --field: #181513; color-scheme: dark;
 }
 * { box-sizing: border-box; }
 body {
@@ -58,8 +62,8 @@ body {
 }
 header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 h1 {
-  font-family: var(--display); font-weight: 800; font-size: 2rem; letter-spacing: -0.02em;
-  margin: 0; color: var(--brand); line-height: 1;
+  font-family: var(--display); font-weight: 400; font-size: 2.9rem; letter-spacing: 0;
+  margin: 0; color: var(--brand); line-height: .9; transform: rotate(-2deg); transform-origin: left bottom;
 }
 .sub { margin: 4px 0 0; color: var(--muted); font-size: .95rem; }
 .ghost {
@@ -86,7 +90,7 @@ input, select { font: 500 1.1rem var(--body); color: var(--fg); }
 .card.win { border-color: var(--tag); box-shadow: 0 0 0 2px var(--tag); }
 .card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .letter {
-  font-family: var(--display); font-weight: 800; font-size: 1.15rem;
+  font-family: var(--display); font-weight: 400; font-size: 1.5rem;
   width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center;
   background: var(--field); border: 1px solid var(--line); color: var(--fg);
 }
@@ -113,7 +117,7 @@ input, select { font: 500 1.1rem var(--body); color: var(--fg); }
   display: flex; justify-content: space-between; align-items: baseline;
   border-top: 1px dashed var(--line); padding-top: 10px; font-variant-numeric: tabular-nums;
 }
-.unit-price .v { font-family: var(--display); font-weight: 600; font-size: 1.25rem; }
+.unit-price .v { font-family: var(--display); font-weight: 400; font-size: 1.85rem; line-height: 1; color: var(--brand); }
 .unit-price .k { color: var(--muted); font-size: .85rem; }
 
 .add {
@@ -123,19 +127,20 @@ input, select { font: 500 1.1rem var(--body); color: var(--fg); }
 .add:active { background: var(--surface); }
 
 .verdict {
-  background: var(--brand); color: var(--brand-fg); border-radius: 16px; padding: 16px 18px;
-  display: flex; flex-direction: column; gap: 4px;
+  background: var(--poster); color: var(--poster-fg); border-radius: 4px; padding: 14px 18px 16px;
+  display: flex; flex-direction: column; gap: 2px;
   position: sticky; bottom: max(12px, env(safe-area-inset-bottom, 0px)); z-index: 5;
-  box-shadow: 0 8px 24px rgba(0,0,0,.18);
+  box-shadow: 0 8px 22px rgba(0,0,0,.22);
 }
-.verdict .eyebrow { font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; opacity: .85; font-weight: 600; }
-.verdict .big { font-family: var(--display); font-weight: 800; font-size: 1.5rem; line-height: 1.15; text-wrap: balance; }
-.verdict .small { font-size: .92rem; opacity: .92; }
-.verdict.idle { background: var(--surface); color: var(--muted); border: 1px solid var(--line); box-shadow: none; }
-.verdict.idle .big { font-size: 1.1rem; color: var(--fg); }
+.verdict .eyebrow { font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; font-weight: 700; }
+.verdict .big { font-family: var(--display); font-weight: 400; font-size: 2.1rem; line-height: 1.02; text-wrap: balance; color: var(--poster-ink); }
+.verdict .small { font-size: .95rem; }
+.verdict.idle { background: var(--surface); color: var(--muted); border: 1px solid var(--line); box-shadow: none; border-radius: 14px; }
+.verdict.idle .big { font-family: var(--body); font-size: 1.05rem; font-weight: 700; line-height: 1.3; color: var(--fg); }
 .verdict.err { background: var(--surface); color: var(--fg); border: 1.5px solid var(--warn); box-shadow: none; }
 .verdict.err .eyebrow { color: var(--warn); opacity: 1; }
-.verdict.err .big { font-size: 1.1rem; }
+.verdict.err .big { font-family: var(--body); font-size: 1.05rem; font-weight: 700; line-height: 1.3; color: var(--fg); }
+.verdict.err { border-radius: 14px; }
 
 .example {
   font-size: .85rem; color: var(--muted); background: var(--surface); border: 1px solid var(--line);
@@ -152,7 +157,8 @@ input, select { font: 500 1.1rem var(--body); color: var(--fg); }
 }
 .seg button[aria-pressed="true"] { background: var(--brand); color: var(--brand-fg); }
 .verdict.solo { position: static; }
-.verdict.solo .big { font-size: 2rem; font-variant-numeric: tabular-nums; }
+.verdict.solo .big { font-size: 3rem; }
+.verdict.solo.idle .big { font-family: var(--display); font-size: 3rem; color: var(--muted); }
 button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
