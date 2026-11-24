@@ -11,6 +11,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Mercadinho">
 <meta name="theme-color" content="#c62a1f">
+<meta name="app-version" content="1.4.0">
+<meta name="app-version-date" content="2026-11-24">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat+Brush&display=swap">
@@ -159,6 +161,7 @@ input, select { font: 500 1.1rem var(--body); color: var(--fg); }
 .verdict.solo { position: static; }
 .verdict.solo .big { font-size: 3rem; }
 .verdict.solo.idle .big { font-family: var(--display); font-size: 3rem; color: var(--muted); }
+.versao { text-align: center; font-size: .78rem; color: var(--muted); font-variant-numeric: tabular-nums; margin: 0; }
 button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
@@ -226,6 +229,8 @@ button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
     <div class="big">Preencha tamanho e preço de pelo menos duas opções.</div>
   </div>
   </section>
+
+  <p class="versao" id="versao">Mercadinho v1.4.0</p>
 </div>
 
 <script>
@@ -494,6 +499,15 @@ button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
     $produto.value = "";
     build(); save();
   });
+
+  // Versão: a única fonte é a meta tag "app-version" no topo do arquivo.
+  const meta = n => (document.querySelector(`meta[name="${n}"]`) || {}).content || "";
+  const APP_VERSION = meta("app-version");
+  const APP_DATE = meta("app-version-date");
+  if (APP_VERSION) {
+    const d = APP_DATE ? APP_DATE.split("-").reverse().join("/") : "";
+    document.getElementById("versao").textContent = `Mercadinho v${APP_VERSION}` + (d ? ` · ${d}` : "");
+  }
 
   showMode();
   updateSingle();
