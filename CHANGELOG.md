@@ -7,6 +7,11 @@ Formato: `MAIOR.MENOR.CORREÇÃO`
 - **MENOR**: função nova ou mudança de visual
 - **CORREÇÃO**: conserto pequeno
 
+## 1.5.0 — 25/11/2026
+- Mudar a unidade de A muda também a das outras opções (as que você trocou à mão ficam como estão)
+- Cartaz: "Leve A" em vez de "Leve a A"
+- Cartaz usa a mesma conta dos selos: mostra quanto a opção mais cara sai a mais
+
 ## 1.4.0 — 24/11/2026
 - Número da versão e data no rodapé do app
 - Este histórico de versões

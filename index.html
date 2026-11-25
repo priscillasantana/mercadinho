@@ -11,8 +11,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Mercadinho">
 <meta name="theme-color" content="#c62a1f">
-<meta name="app-version" content="1.4.0">
-<meta name="app-version-date" content="2026-11-24">
+<meta name="app-version" content="1.5.0">
+<meta name="app-version-date" content="2026-11-25">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat+Brush&display=swap">
@@ -230,7 +230,7 @@ button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
   </div>
   </section>
 
-  <p class="versao" id="versao">Mercadinho v1.4.0</p>
+  <p class="versao" id="versao">Mercadinho v1.5.0</p>
 </div>
 
 <script>
@@ -337,7 +337,20 @@ button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
         try { price.setSelectionRange(end, end); } catch (e) {}
         onChange();
       });
-      unit.addEventListener("change", onChange);
+      unit.addEventListener("change", () => {
+        if (i === 0) {
+          // A unidade de A vira o padrão das outras, menos as que você já mudou à mão
+          state.rows.forEach((o, j) => {
+            if (j === 0 || o.unitManual) return;
+            o.unit = unit.value;
+            const sel = document.getElementById(`unit-${j}`);
+            if (sel) sel.value = unit.value;
+          });
+        } else {
+          r.unitManual = true;
+        }
+        onChange();
+      });
       const rm = card.querySelector(".remove");
       if (rm) rm.addEventListener("click", () => { state.rows.splice(i, 1); build(); save(); });
       $lista.appendChild(card);
@@ -396,11 +409,12 @@ button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
         `Todas saem a ${brl.format(best)} por ${winners[0].u.base}. Leve a que você vai usar.`);
     } else {
       const w = winners[0];
-      const saving = (1 - best / worst) * 100;
+      const extra = (worst / best - 1) * 100;
+      const extraTxt = extra < 1 ? extra.toFixed(1).replace(".", ",") : Math.round(extra);
       const sizeTxt = `${num.format(w.size)} ${UNIT_LABEL[w.r.unit]}`;
       setVerdict("", prod ? `Melhor compra · ${prod}` : "Melhor compra",
-        `Leve a ${letter(w.i)}: ${sizeTxt} por ${brl.format(w.price)}`,
-        `${brl.format(best)} por ${w.u.base}, ${Math.round(saving)}% mais barato que a opção mais cara.`);
+        `Leve ${letter(w.i)}: ${sizeTxt} por ${brl.format(w.price)}`,
+        `${brl.format(best)} por ${w.u.base}. A opção mais cara sai ${extraTxt}% mais caro.`);
     }
   }
 
